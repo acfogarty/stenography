@@ -4,6 +4,8 @@ import glob
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from scipy.cluster.vq import kmeans, vq
 import matplotlib.pyplot as plt
+from image_processing import resize_image, crop_whitespace, red_to_white, rgb_to_gray
+from scipy.misc import imsave
 
 
 def get_red_lines(red_pixels, k_lines, axis):
@@ -19,10 +21,13 @@ def get_red_lines(red_pixels, k_lines, axis):
     lines, counts = np.unique(red_pixels[:, axis], return_counts=True)
     line_indices = lines[counts > pixel_cutoff]
 
-    # # HAC clustering to detect number of individual lines (they may be several pixels wide)
-    # Z = linkage(line_indices.reshape((-1, 1)), 'ward')
-    # clusters = fcluster(Z, k_lines, criterion='maxclust')
-    # print(clusters)
+    # HAC clustering to detect number of individual lines (they may be several pixels wide)
+    Z = linkage(line_indices.reshape((-1, 1)), 'ward')
+    clusters = fcluster(Z, k_lines, criterion='maxclust')
+
+    # get mean value of each cluster
+    means = [line_indices[clusters == i].mean() for i in np.unique(clusters)]
+    line_indices_clustered = [int(c) for c in sorted(means)]
     
     # # calculate full dendrogram
     # plt.figure(figsize=(25, 10))
@@ -37,8 +42,10 @@ def get_red_lines(red_pixels, k_lines, axis):
     # plt.show()
 
     # # k-means clustering to detect number of individual lines (they may be several pixels wide)
-    centroids, _ = kmeans(line_indices.reshape((-1, 1)).astype(np.float64), k_lines)
-    line_indices_clustered = [int(c) for c in sorted(centroids)]
+    # less stable than HAC
+    # centroids, _ = kmeans(line_indices.reshape((-1, 1)).astype(np.float64), k_lines)
+    # line_indices_clustered = [int(c) for c in sorted(centroids)]
+    # print(line_indices_clustered)
 
     return line_indices_clustered
 
@@ -57,7 +64,8 @@ def process_multiimage(img_filename, labels_filename):
         if len(line.strip()) > 0:
             labels.append([l.strip() for l in line.split(',')])
     labels = np.asarray(labels)
-    print(labels)
+
+    print(img_filename)
 
     # read image containing many sub-images
     img = nd.imread(img_filename)
@@ -68,15 +76,44 @@ def process_multiimage(img_filename, labels_filename):
     # average indices of red lines
     horizontal_lines = get_red_lines(red_pixels, labels.shape[0]+1, axis=0)
     vertical_lines = get_red_lines(red_pixels, labels.shape[1]+1, axis=1)
-    print(horizontal_lines)
-    print(vertical_lines)
 
     # get sub-images
+    images = []
+    for i in range(len(horizontal_lines) - 1):
+       row = []
+       for j in range(len(vertical_lines) - 1):
+           row.append(img[horizontal_lines[i]:horizontal_lines[i+1], vertical_lines[j]:vertical_lines[j+1]])
+       images.append(row)
+
+    print('labels:',labels.shape)
 
     # output image files
+    return labels, images
 
+
+pixel_depth = 255.0  # Number of levels per pixel
+image_shape = (28, 28)  # all images will be rescaled to this size
+
+labels_used = []
 
 img_filenames = glob.glob('data/*png')
 labels_filenames = glob.glob('data/*dat')
 for f1, f2 in zip(img_filenames, labels_filenames):
-    process_multiimage(f1, f2)
+    labels, sub_images = process_multiimage(f1, f2)
+    for i in range(labels.shape[0]):
+        for j in range(labels.shape[1]):
+            image = sub_images[i][j]
+            label = labels[i][j]
+            image = red_to_white(image)
+            image = rgb_to_gray(image)
+            image = crop_whitespace(image)
+            image = resize_image(image, image_shape)
+            count = labels_used.count(label)
+            imsave('{}_{}.png'.format(label, count + 1), image)
+            labels_used.append(label)
+
+#image_data = (ndimage.imread(image_file).astype(float) - pixel_depth / 2) / pixel_depth
+
+
+
+
