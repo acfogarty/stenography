@@ -7,6 +7,39 @@ import matplotlib.pyplot as plt
 from image_processing import resize_image, crop_whitespace, red_to_white, rgb_to_gray
 from scipy.misc import imsave
 
+# read png files containing many symbols separated by a grid of red lines (works for any grid spacing)
+# extracts, crops and resizes all sub-images of each symbol
+# read txt file containing labels for all symbols
+# output png file called [label]_[integer].png for each symbol
+# txt file format (same grid as for images):
+# label11, label12, label13\n label21, label22, label23\n etc.
+
+
+def main():
+
+    output_image_shape = (28, 28)  # all images will be rescaled to this size
+    
+    labels_used = []
+    
+    img_filenames = glob.glob('data/*png')
+    labels_filenames = glob.glob('data/*dat')
+    
+    for f1, f2 in zip(img_filenames, labels_filenames):
+    
+        labels, sub_images = process_multiimage(f1, f2)
+    
+        for i in range(labels.shape[0]):
+            for j in range(labels.shape[1]):
+    
+                label = labels[i][j]
+                labels_used.append(label)
+                count = labels_used.count(label)
+    
+                image = sub_images[i][j]
+                image = preprocess_image(image, output_image_shape)
+    
+                imsave('processed_data/{}_{}.png'.format(label, count), image)
+
 
 def get_red_lines(red_pixels, k_lines, axis):
     '''input:
@@ -91,29 +124,13 @@ def process_multiimage(img_filename, labels_filename):
     return labels, images
 
 
-pixel_depth = 255.0  # Number of levels per pixel
-image_shape = (28, 28)  # all images will be rescaled to this size
-
-labels_used = []
-
-img_filenames = glob.glob('data/*png')
-labels_filenames = glob.glob('data/*dat')
-for f1, f2 in zip(img_filenames, labels_filenames):
-    labels, sub_images = process_multiimage(f1, f2)
-    for i in range(labels.shape[0]):
-        for j in range(labels.shape[1]):
-            image = sub_images[i][j]
-            label = labels[i][j]
-            image = red_to_white(image)
-            image = rgb_to_gray(image)
-            image = crop_whitespace(image)
-            image = resize_image(image, image_shape)
-            count = labels_used.count(label)
-            imsave('{}_{}.png'.format(label, count + 1), image)
-            labels_used.append(label)
-
-#image_data = (ndimage.imread(image_file).astype(float) - pixel_depth / 2) / pixel_depth
+def preprocess_image(image, new_image_shape):
+    image = red_to_white(image)
+    image = rgb_to_gray(image)
+    image = crop_whitespace(image)
+    image = resize_image(image, new_image_shape)
+    return image
 
 
-
-
+if __name__ == '__main__':
+    main()
