@@ -1,0 +1,3 @@
+[submodule "algos-from-scratch"]
+	path = algos-from-scratch
+	url = https://github.com/acfogarty/algos-from-scratch.git
