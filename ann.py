@@ -1,12 +1,22 @@
 from algos_from_scratch.common_functions.encoders import LabelEncoder, OneHotEncoder
-from algos_from_scratch.common_functions.common_fns import normalize_input_data, split_train_test
+from algos_from_scratch.common_functions.common_fns import normalize_input_data, split_train_test, cross_entropy_loss
+from algos_from_scratch.neural_network.neural_network import NeuralNetwork
 import numpy as np
 from support import load_input_data
 
 # load individual image files and train feed forward NN
+# two hidden layers
+# activation function: tanh
+# loss function: cross-entropy loss
 
+# hyperparameters
 test_fraction = 0.2
+n_nodes_per_hidden_layer = [6]
+n_hidden_layers = len(n_nodes_per_hidden_layer)
+lambda_regul = 0.5  # regularisation hyperparameter
+alpha = 0.1  # learning rate
 
+# load data
 images, labels = load_input_data()
 
 # process and normalise X
@@ -43,4 +53,21 @@ print('n_classes', n_classes)
 print('input matrix shape', X_train.shape)
 print('output matrix shape', Y_train.shape)
 
+# initialise model
+nn = NeuralNetwork(n_features, n_classes, n_nodes_per_hidden_layer)
 
+# fit network on train set
+nn.fit(X_train, Y_train, alpha=alpha, lambda_regul=lambda_regul)
+
+Y_predict = nn.predict(X_train, transpose_Y=True)
+print(Y_predict)
+print(Y_train)
+loss = cross_entropy_loss(Y_true=Y_train, Y_predict=Y_predict)
+print('loss on training set', loss)
+
+# make predictions on test set
+Y_predict = nn.predict(X_test, transpose_Y=True)
+print(Y_predict)
+print(Y_test)
+loss = cross_entropy_loss(Y_true=Y_test, Y_predict=Y_predict)
+print('loss on test set', loss)
