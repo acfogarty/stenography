@@ -1,5 +1,5 @@
 from algos_from_scratch.common_functions.encoders import LabelEncoder, OneHotEncoder
-from algos_from_scratch.common_functions.common_fns import normalize_input_data, split_train_test, cross_entropy_loss
+from algos_from_scratch.common_functions.common_fns import normalize_input_data, split_train_test, cross_entropy_loss, hardmax, confusion_matrix, calculate_scores_from_confusion_matrix
 from algos_from_scratch.neural_network.neural_network import NeuralNetwork
 import numpy as np
 from support import load_input_data
@@ -59,15 +59,33 @@ nn = NeuralNetwork(n_features, n_classes, n_nodes_per_hidden_layer)
 # fit network on train set
 nn.fit(X_train, Y_train, alpha=alpha, lambda_regul=lambda_regul)
 
-Y_predict = nn.predict(X_train, transpose_Y=True)
-print(Y_predict)
-print(Y_train)
-loss = cross_entropy_loss(Y_true=Y_train, Y_predict=Y_predict)
-print('loss on training set', loss)
 
-# make predictions on test set
-Y_predict = nn.predict(X_test, transpose_Y=True)
-print(Y_predict)
-print(Y_test)
-loss = cross_entropy_loss(Y_true=Y_test, Y_predict=Y_predict)
-print('loss on test set', loss)
+def test(X, Y):
+    Y_predict = nn.predict(X, transpose_Y=True)
+    # print('Y_predict')
+    # print(Y_predict)
+    # print('Y')
+    # print(Y)
+    loss = cross_entropy_loss(Y_true=Y, Y_predict=Y_predict)
+    print('loss', loss)
+    # convert probabilities to 0 and 1 (max prob = 1)
+    Y_predict_hard = hardmax(Y_predict)
+    # print('Y_predict_hard')
+    # print(Y_predict_hard)
+    Y_decoded = oh_enc.decode(Y)
+    Y_predict_decoded = oh_enc.decode(Y_predict_hard)
+    print('Y_decoded')
+    print(Y_decoded)
+    print('Y_predict_decoded')
+    print(Y_predict_decoded)
+    cm = confusion_matrix(Y=Y_predict_decoded, Y_true=Y_decoded, print_matrix=True)
+    l_enc.print_decoder()
+    scores = calculate_scores_from_confusion_matrix(cm)
+    print(scores)
+    
+
+print('training set')
+test(X_train, Y_train)
+
+print('test set')
+test(X_test, Y_test)
