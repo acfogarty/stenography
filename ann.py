@@ -1,5 +1,5 @@
 from algos_from_scratch.common_functions.encoders import LabelEncoder, OneHotEncoder
-from algos_from_scratch.common_functions.common_fns import normalize_input_data, split_train_test, cross_entropy_loss, hardmax, confusion_matrix, calculate_scores_from_confusion_matrix
+from algos_from_scratch.common_functions.common_fns import normalize_input_data, split_train_test, cross_entropy_loss, hardmax, confusion_matrix, calculate_scores_from_confusion_matrix, print_model_test
 from algos_from_scratch.neural_network.neural_network import NeuralNetwork
 import numpy as np
 from support import load_input_data
@@ -14,7 +14,7 @@ test_fraction = 0.2
 n_nodes_per_hidden_layer = [6]
 n_hidden_layers = len(n_nodes_per_hidden_layer)
 lambda_regul = 0.5  # regularisation hyperparameter
-alpha = 0.1  # learning rate
+alpha = 0.01  # learning rate
 
 # load data
 images, labels = load_input_data()
@@ -54,38 +54,14 @@ print('input matrix shape', X_train.shape)
 print('output matrix shape', Y_train.shape)
 
 # initialise model
-nn = NeuralNetwork(n_features, n_classes, n_nodes_per_hidden_layer)
+nn = NeuralNetwork(n_features, n_classes, n_nodes_per_hidden_layer, alpha=alpha, lambda_regul=lambda_regul)
 
 # fit network on train set
-nn.fit(X_train, Y_train, alpha=alpha, lambda_regul=lambda_regul)
+nn.fit(X_train, Y_train)
 
-
-def test(X, Y):
-    Y_predict = nn.predict(X, transpose_Y=True)
-    # print('Y_predict')
-    # print(Y_predict)
-    # print('Y')
-    # print(Y)
-    loss = cross_entropy_loss(Y_true=Y, Y_predict=Y_predict)
-    print('loss', loss)
-    # convert probabilities to 0 and 1 (max prob = 1)
-    Y_predict_hard = hardmax(Y_predict)
-    # print('Y_predict_hard')
-    # print(Y_predict_hard)
-    Y_decoded = oh_enc.decode(Y)
-    Y_predict_decoded = oh_enc.decode(Y_predict_hard)
-    print('Y_decoded')
-    print(Y_decoded)
-    print('Y_predict_decoded')
-    print(Y_predict_decoded)
-    cm = confusion_matrix(Y=Y_predict_decoded, Y_true=Y_decoded, print_matrix=True)
-    l_enc.print_decoder()
-    scores = calculate_scores_from_confusion_matrix(cm)
-    print(scores)
-    
 
 print('training set')
-test(X_train, Y_train)
+print_model_test(nn, X_train, Y_train, cross_entropy_loss, oh_enc, l_enc)
 
 print('test set')
-test(X_test, Y_test)
+print_model_test(nn, X_test, Y_test, cross_entropy_loss, oh_enc, l_enc)
