@@ -3,7 +3,9 @@
 1. process multi-image pngs to produce a series of labelled images each containing one stenographic symbol
    `parse_images.py`
 
-2.
+2. feedforward NN from scratch to predict one of 7 classes (1 word = 1 class)
+
+3. feedforward NN in tensorflow to predict one of 100 classes
 
 ------------------------------------
 
