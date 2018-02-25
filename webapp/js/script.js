@@ -5,9 +5,21 @@ var canvas, ctx;
 var canvasWidth = 600;
 var canvasHeight = 200;
 
+var lineColor = "white";
+var lineWidth = 5;
+
 // position of lines dividing the three zones
 var ssl_greggs_x = 200;
 var greggs_ssn_x = 400;
+
+// current positions
+var touchX, touchY, mouseX, mouseY;
+
+// previous positions
+var prevX, prevY = -1;
+
+// true if mouse is being held down
+var paint;
 
 function init() {
     // create the canvas element if possible 
@@ -31,7 +43,7 @@ function init() {
         canvas.addEventListener('mousemove', mouseMove, false);
         window.addEventListener('mouseup', mouseUp, false);
 
-        // touchstreen
+        // touchscreen
         canvas.addEventListener('touchstart', touchStart, false);
         canvas.addEventListener('touchend', touchEnd, false);
         canvas.addEventListener('touchmove', touchMove, false);
@@ -41,11 +53,26 @@ function init() {
 }
 
 function mouseDown() {
+    paint = 1;
+    prevX = mouseX;
+    prevY = mouseY;
 }
-function mouseMove() {
+
+// called whenever mouse is moved (whether button is held down or not)
+// paint == True if button is held down
+function mouseMove(e) {
+    setCurrentMouseCoordinates(e);
+    if (paint) {
+        drawLine(prevX, prevY, mouseX, mouseY, lineColor, lineWidth) 
+    }
+    prevX = mouseX;
+    prevY = mouseY;
 }
+
 function mouseUp() {
+    paint = 0;
 }
+
 function touchStart() {
 }
 function touchEnd() {
@@ -71,6 +98,7 @@ function resetCanvas() {
 // line from x1,y1 to x2,y2 in specified color and width
 function drawLine(x1, y1, x2, y2, color, lineWidth) {
     ctx.strokeStyle = color;
+    ctx.lineCap = "round";
     ctx.lineWidth = lineWidth;
     ctx.beginPath();
     ctx.moveTo(x1, y1);
@@ -78,6 +106,9 @@ function drawLine(x1, y1, x2, y2, color, lineWidth) {
     ctx.stroke();
 }
 
-function getEventCoordinates(event) {
-
+function setCurrentMouseCoordinates(e) {
+    // offsetX/Y gets coords relative to parent container (here, the canvas)
+    // supported by firefox >= v39
+    mouseX = e.offsetX;
+    mouseY = e.offsetY;
 }
