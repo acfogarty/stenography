@@ -2,6 +2,7 @@ import re
 import scipy.ndimage as nd
 import glob
 import os
+import numpy as np
 
 
 def load_input_data():
@@ -30,6 +31,8 @@ def load_input_data():
         else:
             raise Exception('could not extract label from filename {}'.format(filename))
         labels.append(label)
+
+    images = np.asarray(images)
 
     return images, labels
 

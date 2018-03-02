@@ -21,7 +21,6 @@ cv_n_fold = 5  # number of folds for cross validation
 images, labels = load_input_data()
 
 # process and normalise X
-images = np.asarray(images)
 X = images.reshape((-1, images.shape[1] * images.shape[2])).astype(np.float32)
 X, _, _ = normalize_input_data(X)
 
