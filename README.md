@@ -51,3 +51,15 @@ image_processing.py
 ------------------------------------
 
 `webapp`
+
+* weights for three models (one-stroke letters, one-stroke numbers, Gregg's stenography)
+
+* html5 canvas with three zones: one-stroke letters, one-stroke numbers, Gregg's stenography
+
+* touchscreen input -> image matrix, after timedelay of X seconds
+
+* preprocess (crop) input
+
+* forwardprop in js with one of the three models
+
+* propose top output class (or top X outputs if probability of top output is less than threshold)

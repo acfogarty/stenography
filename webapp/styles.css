@@ -1,4 +1,8 @@
 #writingCanvas {
-    float: left;
     position: relative; /* Necessary for correct mouse co-ords in Firefox */
+}
+
+textarea {
+    color: white;
+    background-color: black;
 }

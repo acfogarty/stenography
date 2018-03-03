@@ -1,6 +1,7 @@
 // global variables
 
 var canvas, ctx;
+var resizingCanvas, resizingCtx;  // invisible canvas for resizing images
 
 var canvasWidth = 600;
 var canvasHeight = 200;
@@ -31,9 +32,13 @@ function init() {
     canvas.setAttribute('id', 'writingCanvas');
     canvasDiv.appendChild(canvas);
 
+    // invisible canvas for resizing images
+    resizingCanvas = document.createElement('canvas');
+
     // (canvas not supported by IE 8 and earlier, so first check if getContext is defined)
     if (canvas.getContext) {
         ctx = canvas.getContext('2d');
+        resizingCtx = resizingCanvas.getContext('2d');
     }
 
     // add event listeners
