@@ -1,9 +1,10 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
-from support import load_input_data
+from support import load_input_data, plot_confusion_matrix
 import numpy as np
 
 # cross-validated hyperparameters
@@ -33,6 +34,7 @@ X = images.reshape((-1, images.shape[1] * images.shape[2])).astype(np.float32)
 # preprocess Y
 le = preprocessing.LabelEncoder()
 Y = le.fit_transform(labels)
+class_names = le.classes_
 print('classes', le.classes_)
 
 # random split
@@ -46,13 +48,29 @@ scaler.fit(X_train)
 X_train = scaler.transform(X_train)
 X_test = scaler.transform(X_test)
 
-# fit NN
+# fit weights
 clf = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation=activation, solver=solver, alpha=alpha, batch_size=batch_size, learning_rate=learning_rate, learning_rate_init=learning_rate_init, max_iter=max_iter, shuffle=shuffle, momentum=momentum, beta_1=beta_1, beta_2=beta_2)
 clf.fit(X_train, Y_train)
 
 print("Training set score: %f" % clf.score(X_train, Y_train))
 print("Test set score: %f" % clf.score(X_test, Y_test))
 
+# confusion matrix
+Y_pred = clf.predict(X_test)
+cm = confusion_matrix(Y_test, Y_pred)
+np.set_printoptions(precision=2)
+
+plot_confusion_matrix(cm, class_names, 'confusion_matrix_test.png',
+                      normalize=False,
+                      title='Confusion matrix',
+                      cmap=plt.cm.Blues)
+
+quit()
+
+# print weights
+print([coef.shape for coef in clf.coefs_])
+
+# plot weights
 fig, axes = plt.subplots(4, 4)
 # use global min / max to ensure all weights are shown on the same scale
 vmin, vmax = clf.coefs_[0].min(), clf.coefs_[0].max()
@@ -63,10 +81,6 @@ for coef, ax in zip(clf.coefs_[0].T, axes.ravel()):
     ax.set_yticks(())
 
 plt.show()
-
-quit()
-# print weights
-print([coef.shape for coef in clf.coefs_])
 
 le.inverse_transform(Y_predict)
 
