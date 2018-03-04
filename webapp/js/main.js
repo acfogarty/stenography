@@ -93,7 +93,7 @@ function resetCanvas() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // draw white vertical lines at x=ssl_greggs_x and x=greggs_ssn_x
-    color = "white";
+    color = "green";
     lineWidth = 10;
     drawLine(ssl_greggs_x, 10, ssl_greggs_x, canvas.height-10, color, lineWidth);
     drawLine(greggs_ssn_x, 10, greggs_ssn_x, canvas.height-10, color, lineWidth);
