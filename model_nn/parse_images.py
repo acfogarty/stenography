@@ -15,9 +15,11 @@ from scipy.misc import imsave
 # label11, label12, label13\n label21, label22, label23\n etc.
 
 
+imageSize = 28  # all cropped images will be rescaled to this width and height
+
 def main():
 
-    output_image_shape = (28, 28)  # all images will be rescaled to this size
+    output_image_shape = (imageSize, imageSize)  
     
     labels_used = []
     
