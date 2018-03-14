@@ -10,21 +10,18 @@ function extractData() {
 
     // get definition of crop box (smallest box bounding all white pixels)
     var cropBox = cropWhitespace(imgData);
-    console.log(cropBox);
 
     // resize data in crop box to be modelImageSize*modelImageSize
     var croppedRescaledImgData = resizeImage(cropBox.cropX, cropBox.cropY, cropBox.cropWidth, cropBox.cropHeight, modelImageSize, modelImageSize);
 
     // image is black and white, all channels the same
     // therefore we simply take the pixels of the first channel (R)
+    // convert to black on white, values scaled between 0 and 1
     var data = new Array();
     for (var i = 0; i < croppedRescaledImgData.data.length; i += 4) {
-        data.push(croppedRescaledImgData.data[i]);
+        data.push((0.5*255 - croppedRescaledImgData.data[i])/(255*0.5));
     }
     console.log(data);
-
-    // convert to black on white, values scaled between 0 and 1
-    // data = convert();
 
     return data;
 }
@@ -84,8 +81,6 @@ function cropWhitespace(imgData) {
     // get first and last white pixels in each direction
     var rowsIndices = findCropIndices(rows);
     var colsIndices = findCropIndices(cols);
-    console.log(rowsIndices);
-    console.log(colsIndices);
 
     // get bounding box in each direction
     var cropX = rowsIndices.minWhitePixel;
@@ -102,11 +97,10 @@ function cropWhitespace(imgData) {
 // Function rescales image by writing to an invisible canvas with context resizingCtx
 // and returns the cropped, rescaled imgData extracted from that invisible canvas.
 function resizeImage(sourceX, sourceY, sourceWidth, sourceHeight, newWidth, newHeight) {
-    ctx.drawImage(canvas, sourceX, sourceY, 
-    //resizingCtx.drawImage(sourceX, sourceY, 
+    //ctx.drawImage(canvas, sourceX, sourceY, 
+    resizingCtx.drawImage(canvas, sourceX, sourceY, 
                           sourceWidth, sourceHeight, 
                           0, 0, newWidth, newHeight);
     var imgData = resizingCtx.getImageData(0, 0, newWidth, newHeight);
-    console.log(imgData);
     return imgData;
 }

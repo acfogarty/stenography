@@ -55,6 +55,8 @@ function init() {
     }
 
     resetCanvas();
+
+    loadParameters();
 }
 
 function mouseDown() {

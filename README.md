@@ -28,9 +28,11 @@ To update submodule, run:
 `git submodule update --remote`
 
 In older git versions run:
-```cd algos_from_scratch
+```
+cd algos_from_scratch
 git fetch
-git merge origin/master```
+git merge origin/master
+```
 
 ---------------------------------
 
