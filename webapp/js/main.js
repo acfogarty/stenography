@@ -20,7 +20,19 @@ var touchX, touchY, mouseX, mouseY;
 var prevX, prevY = -1;
 
 // true if mouse is being held down
-var paint;
+var paint = 0;
+
+// true if zone has been written on since last call to clearZone()
+var zoneWritten = 0;  
+
+// time of last mouseUp
+var timeOfLastWrite = 0;
+
+// wait this number of ms since last write until predicting word
+var timeDelay = 2000;  
+
+// 0: singlestroke letters, 1: Greggs stenography, 2: singlestroke numbers
+var predictionModel = 0;  
 
 function init() {
     // create the canvas element if possible 
@@ -57,12 +69,17 @@ function init() {
     resetCanvas();
 
     loadParameters();
+
+    animate();
 }
 
 function mouseDown() {
-    paint = 1;
+    // TODO only if mouseX and mouseY are in canvas
+    paint = 1;  // will remain 1 until mouseUp
     prevX = mouseX;
     prevY = mouseY;
+    // find which prediction model to use based on the zone
+    predictionModel = getPredictionModelFromCoordinates(mouseX);
 }
 
 // called whenever mouse is moved (whether button is held down or not)
@@ -77,14 +94,29 @@ function mouseMove(e) {
 }
 
 function mouseUp() {
-    paint = 0;
+    paint = 0;  // will remain 0 until next mouseDown
+    // TODO only if mouseX and mouseY are in canvas
+    zoneWritten = 1;  // will remain 1 until next word prediction
+    timeOfLastWrite = new Date().getTime();
 }
 
-function touchStart() {
+function touchStart(e) {
+    e.preventDefault();
+    setCurrentTouchCoordinates(e);
+    mouseDown();
 }
-function touchEnd() {
+
+function touchEnd(e) {
+    e.preventDefault();
+    mouseUp();
 }
-function touchMove() {
+
+function touchMove(e) {
+    e.preventDefault();
+    setCurrentTouchCoordinates(e);
+    drawLine(prevX, prevY, mouseX, mouseY, lineColor, lineWidth);
+    prevX = mouseX;
+    prevY = mouseY;
 }
 
 // fill the canvas with black and draw two vertical white lines to demarcate the three zones (ss letters, ss numbers and stenography)
@@ -100,6 +132,8 @@ function resetCanvas() {
     drawLine(ssl_greggs_x, 10, ssl_greggs_x, canvas.height-10, color, lineWidth);
     drawLine(greggs_ssn_x, 10, greggs_ssn_x, canvas.height-10, color, lineWidth);
 
+    // reset the variable that tells us whether the user has written on the canvas
+    zoneWritten = 0;
 }
 
 // line from x1,y1 to x2,y2 in specified color and width
@@ -118,4 +152,37 @@ function setCurrentMouseCoordinates(e) {
     // supported by firefox >= v39
     mouseX = e.offsetX;
     mouseY = e.offsetY;
+}
+
+function setCurrentTouchCoordinates(e) {
+    var rect = canvas.getBoundingClientRect();
+    mouseX = e.touches[0].clientX - rect.left;
+    mouseY = e.touches[0].clientY - rect.top;
+}
+
+function getPredictionModelFromCoordinates(X) {
+    if (X < ssl_greggs_x) {
+        predictionModel = 0;
+    } else if (X < greggs_ssn_x) {
+        predictionModel = 1;
+    } else {
+        predictionModel = 2;
+    }
+}
+
+function animate() {
+    var now = new Date().getTime();
+    var timeSinceLastWrite = now - timeOfLastWrite;
+    if ((timeSinceLastWrite > timeDelay) && (zoneWritten)) {
+        convertWord();
+        //word = convertWord();
+        //updateTextArea(word);
+        console.log(zoneWritten);
+        resetCanvas();
+        console.log(zoneWritten);
+        console.log('here');
+    }
+    //console.log(timeSinceLastWrite);
+    //console.log(zoneWritten);
+    requestAnimationFrame(arguments.callee, null);
 }

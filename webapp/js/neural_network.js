@@ -133,6 +133,7 @@ function convertWord() {
   // extract pixels from zone
   var X = extractData();
   // forwardprop neural network for one sample
+  // use predictModel variable TODO
   var Y = predict(X);
   // get max classes
   var iclass = Y.indexOf(Math.max(...Y));
@@ -144,6 +145,7 @@ function convertWord() {
 }
 
 function appendWord(word) {
+    document.getElementById("editor").value += ' ';
     document.getElementById("editor").value += word;
 }
 
