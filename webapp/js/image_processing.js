@@ -1,8 +1,10 @@
+// ** Functions for preprocessing image taken from the input canvas **
+
 // get the white pixels from the black canvas
 // crop image
 // resize
 // convert to black on white (values between 0 and 1)
-// return array of floats between 0 and 1 of length modelImageSize*modelImageSize
+// return array of floats between 0 and 1 of length modelData.imageSize*modelData.imageSize
 function extractData() {
 
     // first extract image data from the visible canvas
@@ -11,8 +13,8 @@ function extractData() {
     // get definition of crop box (smallest box bounding all white pixels)
     var cropBox = cropWhitespace(imgData);
 
-    // resize data in crop box to be modelImageSize*modelImageSize
-    var croppedRescaledImgData = resizeImage(cropBox.cropX, cropBox.cropY, cropBox.cropWidth, cropBox.cropHeight, modelImageSize, modelImageSize);
+    // resize data in crop box to be modelData.imageSize*modelData.imageSize
+    var croppedRescaledImgData = resizeImage(cropBox.cropX, cropBox.cropY, cropBox.cropWidth, cropBox.cropHeight, modelData.imageSize, modelData.imageSize);
 
     // image is black and white, all channels the same
     // therefore we simply take the pixels of the first channel (R)
@@ -21,7 +23,6 @@ function extractData() {
     for (var i = 0; i < croppedRescaledImgData.data.length; i += 4) {
         data.push((0.5*255 - croppedRescaledImgData.data[i])/(255*0.5));
     }
-    console.log(data);
 
     return data;
 }
