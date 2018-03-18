@@ -12,9 +12,9 @@
 
 6. implement forwardprop in javascript
 
-7. get more data
+7. (TODO) get more data
 
-8. CNN in tensorflow to predict one of 100 classes
+8. (TODO) CNN in tensorflow to predict one of 100 classes
 
 ------------------------------------
 
@@ -65,3 +65,21 @@ image_processing.py
 * forwardprop in js with one of the three models
 
 * propose top output class (or top X outputs if probability of top output is less than threshold)
+
+------------------------------------
+
+### TODO
+
+* propose multiple words if probability of top output is less than threshold, or for brief forms with multiple translations
+
+* dot on touchStart event
+
+* don't distort image shape when cropping and resizing
+
+* add singlestroke models
+
+* add time feature to singlestroke models
+
+* save/backup text from textarea
+
+* CNN
